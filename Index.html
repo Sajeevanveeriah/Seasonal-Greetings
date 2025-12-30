@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Season's Greetings ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+            font-family: 'Georgia', serif;
+            padding: 20px;
+        }
+
+        /* Snowflakes */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            font-size: 1rem;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        /* Letter - Appears when envelope opens */
+        .letter {
+            width: 320px;
+            max-width: 90vw;
+            background: linear-gradient(180deg, #fffef5 0%, #f5f0e1 100%);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .letter.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            position: relative;
+        }
+
+        .letter-inner {
+            padding: 22px 20px 18px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 30px;
+            height: 30px;
+            background: rgba(196, 30, 58, 0.1);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #c41e3a;
+            transition: background 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 5;
+        }
+
+        .close-btn:hover, .close-btn:active {
+            background: rgba(196, 30, 58, 0.25);
+        }
+
+        .letter-content {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .letter-to {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .letter-greeting {
+            font-size: 24px;
+            color: #c41e3a;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .letter-subgreeting {
+            font-size: 20px;
+            color: #1a472a;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .divider {
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #c41e3a, #1a472a, transparent);
+            margin: 0 auto 15px;
+        }
+
+        .letter-message {
+            font-size: 14px;
+            line-height: 1.65;
+            color: #34495e;
+            text-align: left;
+        }
+
+        .letter-message p {
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            color: #c41e3a;
+            font-weight: 600;
+        }
+
+        .letter-footer {
+            margin-top: 12px;
+            text-align: center;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 12px;
+        }
+
+        .signature {
+            font-style: italic;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .decorative-icons {
+            font-size: 18px;
+            margin-top: 8px;
+            letter-spacing: 8px;
+        }
+
+        /* Envelope */
+        .envelope {
+            width: 320px;
+            max-width: 90vw;
+            height: 220px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .envelope:hover {
+            transform: scale(1.02);
+        }
+
+        .envelope:active {
+            transform: scale(0.98);
+        }
+
+        .envelope.opened {
+            opacity: 0;
+            transform: scale(0.8) translateY(50px);
+            pointer-events: none;
+            position: absolute;
+            visibility: hidden;
+        }
+
+        .envelope-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #c41e3a 0%, #8b0000 100%);
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .envelope-front {
+            position: absolute;
+            width: 100%;
+            height: 65%;
+            bottom: 0;
+            background: linear-gradient(180deg, #dc3545 0%, #c41e3a 100%);
+            border-radius: 0 0 12px 12px;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .envelope-to {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            font-style: italic;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            width: 100%;
+            height: 55%;
+            top: 0;
+            background: linear-gradient(180deg, #c41e3a 0%, #a01729 100%);
+            clip-path: polygon(0 0, 50% 75%, 100% 0);
+            transform-origin: top center;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .envelope-flap::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+            clip-path: polygon(0 0, 50% 75%, 100% 0);
+        }
+
+        .envelope.opened .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        /* Wax Seal */
+        .wax-seal {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #daa520, #b8860b);
+            border-radius: 50%;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+            transition: all 0.4s ease;
+        }
+
+        .wax-seal::before {
+            content: '🏏';
+            font-size: 24px;
+        }
+
+        .envelope.opened .wax-seal {
+            opacity: 0;
+            transform: translateX(-50%) scale(0);
+        }
+
+        /* Instruction */
+        .instruction {
+            color: #fff;
+            font-size: 14px;
+            margin-top: 25px;
+            opacity: 0.85;
+            animation: pulse 2s ease-in-out infinite;
+            text-align: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .instruction.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Decorations */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .cricket-ball {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle at 30% 30%, #dc3545, #8b0000);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .cricket-ball::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+
+        .d1 { top: 8%; left: 5%; animation-delay: 0s; }
+        .d2 { top: 12%; right: 6%; animation-delay: 0.5s; }
+        .d3 { bottom: 12%; left: 6%; animation-delay: 1s; }
+        .d4 { bottom: 18%; right: 5%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(180deg); }
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 14px;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .d5 { top: 5%; left: 18%; }
+        .d6 { top: 6%; right: 15%; animation-delay: 0.4s; }
+        .d7 { bottom: 8%; left: 15%; animation-delay: 0.8s; }
+        .d8 { bottom: 10%; right: 12%; animation-delay: 1.2s; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 380px) {
+            .envelope {
+                width: 290px;
+                height: 200px;
+            }
+            .letter {
+                width: 290px;
+            }
+            .letter-greeting {
+                font-size: 21px;
+            }
+            .letter-subgreeting {
+                font-size: 18px;
+            }
+            .letter-message {
+                font-size: 13px;
+            }
+            .wax-seal {
+                width: 52px;
+                height: 52px;
+            }
+            .wax-seal::before {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflakes -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Decorations -->
+    <div class="decoration cricket-ball d1"></div>
+    <div class="decoration cricket-ball d2"></div>
+    <div class="decoration cricket-ball d3"></div>
+    <div class="decoration cricket-ball d4"></div>
+    <div class="decoration star d5">✦</div>
+    <div class="decoration star d6">✦</div>
+    <div class="decoration star d7">✦</div>
+    <div class="decoration star d8">✦</div>
+
+    <div class="main-container">
+        <!-- Letter (hidden initially) -->
+        <div class="letter" id="letter">
+            <div class="letter-inner">
+                <button class="close-btn" id="closeBtn">✕</button>
+                <div class="letter-content">
+                    <div class="letter-to">To: Rosie</div>
+                    <div class="letter-greeting">Merry Christmas</div>
+                    <div class="letter-subgreeting">& Happy New Year! 🎄🎁</div>
+                    <div class="divider"></div>
+                    <div class="letter-message">
+                        <p>As this festive season arrives, I wanted to take a moment to send warm wishes your way this season.</p>
+                        <p>Thank you for being such <span class="highlight">an amazing person</span>. Your kindness, energy, and support have made a real difference, not just to the club, but to me personally as well.</p>
+                        <p>Wishing you & family a holiday season filled with joy, laughter, and perhaps some <span class="highlight">sunshine</span> to make up for the British weather!</p>
+                        <p>Here's to a wonderful 2026 ahead. 🥂</p>
+                    </div>
+                    <div class="letter-footer">
+                        <div class="signature">With gratitude and warm wishes,<br>Saj 🏏</div>
+                        <div class="decorative-icons">🎄 ⭐ 🎁</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Envelope -->
+        <div class="envelope" id="envelope">
+            <div class="envelope-back"></div>
+            <div class="envelope-front">
+                <div class="envelope-to">To: Rosie</div>
+            </div>
+            <div class="envelope-flap"></div>
+            <div class="wax-seal"></div>
+        </div>
+
+        <div class="instruction" id="instruction">✨ Tap to open ✨</div>
+    </div>
+
+    <script>
+        // Create snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const chars = ['❄', '❅', '❆', '•'];
+            
+            for (let i = 0; i < 35; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = chars[Math.floor(Math.random() * chars.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 5 + 6) + 's';
+                flake.style.animationDelay = (Math.random() * 8) + 's';
+                flake.style.fontSize = (Math.random() * 8 + 8) + 'px';
+                flake.style.opacity = Math.random() * 0.5 + 0.3;
+                container.appendChild(flake);
+            }
+        }
+
+        // Elements
+        const envelope = document.getElementById('envelope');
+        const letter = document.getElementById('letter');
+        const instruction = document.getElementById('instruction');
+        const closeBtn = document.getElementById('closeBtn');
+
+        let isOpen = false;
+
+        // Open envelope
+        function openEnvelope() {
+            if (isOpen) return;
+            isOpen = true;
+            envelope.classList.add('opened');
+            letter.classList.add('visible');
+            instruction.classList.add('hidden');
+        }
+
+        // Close envelope
+        function closeEnvelope(e) {
+            if (e) e.stopPropagation();
+            if (!isOpen) return;
+            isOpen = false;
+            envelope.classList.remove('opened');
+            letter.classList.remove('visible');
+            instruction.classList.remove('hidden');
+        }
+
+        // Event listeners
+        envelope.addEventListener('click', openEnvelope);
+        envelope.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            openEnvelope();
+        });
+
+        closeBtn.addEventListener('click', closeEnvelope);
+        closeBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            closeEnvelope(e);
+        });
+
+        // Initialize
+        createSnowflakes();
+    </script>
+</body>
+</html>
